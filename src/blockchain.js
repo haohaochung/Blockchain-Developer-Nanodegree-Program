@@ -65,20 +65,20 @@ class Blockchain {
     _addBlock(block) {
         let self = this;
         return new Promise(async (resolve, reject) => {
-            try {
-                if (self.chain.length > 0) {
-                    block.previousBlockHash = this.chain[this.chain.length-1].hash;
-                    block.height = this.chain[this.chain.length-1].height + 1;
-                }
-                block.timestamp = new Date().getTime().toString().slice(0,-3);
-                block.hash = SHA256(JSON.stringify(block)).toString();
-                self.length ++;
-                self.chain.push(block);
-                resolve(self.chain);
-            } catch {
-                reject(Error("Can not add block"));
-            }
-           
+          
+            if (self.chain.length > 0) {
+                block.previousBlockHash = self.chain[self.chain.length-1].hash;
+                block.height = self.chain[self.chain.length-1].height + 1;
+            }            
+            block.time = new Date().getTime().toString().slice(0,-3);
+            block.hash = SHA256(JSON.stringify(block)).toString();
+            self.height += 1;
+            self.chain.push(block);
+            if (block) {
+                resolve(block);
+            } else {
+                reject(errors);
+            } 
         });
     }
 
@@ -122,17 +122,20 @@ class Blockchain {
     submitStar(address, message, signature, star) {
         let self = this;
         return new Promise(async (resolve, reject) => {
-            let messageTime = parseInt(message.split(':')[1])
+            let messageTime = parseInt(message.split(':')[1]);
             let currentTime = parseInt(new Date().getTime().toString().slice(0,-3));
-            if (currentTime - messageTime > 300) {
-                reject('Over Time');
+            if (currentTime - messageTime < 300) {
+                const isVaild = bitcoinMessage.verify(message, address, signature);
+                if (isVaild) {
+                    let newBlock = new BlockClass.Block({"star" : star, "owner" : address});
+                    self._addBlock(newBlock);
+                    resolve(newBlock);
+                } else {
+                    reject('Invalid Message');
+                }                
+            } else {
+                reject('Over 5 Minutes');
             }
-            if(!bitcoinMessage.verify(message, address, signature)) {
-                reject('Invalid Message');
-            }
-            let newBlock = new BlockClass.Block({"star" : star, "owner" : address});
-            self._addBlock(newBlock);
-            resolve(newBlock);
         });
     }
 
@@ -204,12 +207,16 @@ class Blockchain {
         let self = this;
         let errorLog = [];
         return new Promise(async (resolve, reject) => {
-            self.chain.forEach(c => {
-                if(self.chain.height > 0 ) {
-                    let previousBlockHash = self.chain[self.chain.height-1].hash;
-                    if(previousBlockHash != self.hash){
-                        errorLog.push('vaildate failed');
+            self.chain.forEach(async block => {
+                if (block.validate()) {
+                    if(self.chain.length > 1) {
+                        let previousBlockHash = self.chain[self.height-1].hash;
+                        if (previousBlockHash != self.previousBlockHash) {
+                            errorLog.push('Vaildate failed');
+                        }
                     }
+                } else {
+                    errorLog.push("Validate failed");
                 }
                 resolve(errorLog);
             });            
