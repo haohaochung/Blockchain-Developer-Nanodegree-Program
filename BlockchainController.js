@@ -65,7 +65,6 @@ class BlockchainController {
                 const star = req.body.star;
                 try {
                     let block = await this.blockchain.submitStar(address, message, signature, star);
-                    console.log(block);
                     if(block){
                         return res.status(200).json(block);
                     } else {

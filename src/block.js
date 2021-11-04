@@ -43,6 +43,7 @@ class Block {
             self.hash = null;
             // Recalculate the hash of the Block
             let calculatedHash = SHA256(JSON.stringify(self)).toString();
+            self.hash = calculatedHash
             // Comparing if the hashes changed
             if (hashAux !== calculatedHash) {
                 resolve(false);
