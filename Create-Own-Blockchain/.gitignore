@@ -1,0 +1,9 @@
+build
+# testing
+/coverage
+
+# production
+/build
+
+# node_modules
+/node_modules
