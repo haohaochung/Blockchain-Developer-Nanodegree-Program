@@ -1,9 +1,12 @@
 # Project Info
 
 ERC-721 Token Name: [Colin Star Token](https://rinkeby.etherscan.io/tokens?q=0x8C6742b10f37f662bf3572C81c7d0FCe1a1aB5b1)
+
 ERC-721 Token Symbol: CST
+
 "Token Address" on the Rinkeby Network: [0x8C6742b10f37f662bf3572C81c7d0FCe1a1aB5b1](https://rinkeby.etherscan.io/address/0x8c6742b10f37f662bf3572c81c7d0fce1a1ab5b1)
-### Version of the Truffle and OpenZeppelin used: Truffle -> v5.4.21, OpenZeppelin -> 2.3.0
+
+Version of the Truffle and OpenZeppelin used: Truffle -> v5.4.21, OpenZeppelin -> 2.3.0
 
 
 
