@@ -11,6 +11,7 @@ import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 /************************************************** */
 contract FlightSuretyApp {
     using SafeMath for uint256; // Allow SafeMath functions to be called for all uint256 types (similar to "prototype" in Javascript)
+    FlightSuretyData flightSuretyData;
 
     /********************************************************************************************/
     /*                                       DATA VARIABLES                                     */
@@ -23,6 +24,9 @@ contract FlightSuretyApp {
     uint8 private constant STATUS_CODE_LATE_WEATHER = 30;
     uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
     uint8 private constant STATUS_CODE_LATE_OTHER = 50;
+
+    uint256 private constant AIRLINE_FUNDING_REQUIREMENT_AMOUNT = 10 ether;
+
 
     address private contractOwner;          // Account used to deploy contract
 
@@ -100,44 +104,89 @@ contract FlightSuretyApp {
     * @dev Add an airline to the registration queue
     *
     */   
-    function registerAirline
-                            (   
-                            )
-                            external
-                            pure
-                            returns(bool success, uint256 votes)
-    {
-        return (success, 0);
+    function registerAirline(address airlineAddress)
+        external
+        requireIsOperational                    
+        returns(bool success, uint256 votes)
+    {   
+        require(flightSuretyData.isAirlineRegistered(msg.sender), "Sender is not an registered airline");
+        require(!flightSuretyData.isAirlineRegistered(airlineAddress), "The airline has already registered");
+
+        uint256 operationalAirlineCount = flightSuretyData.getOperationalAirlineCount();
+        if (operationalAirlineCount < 4) {
+            flightSuretyData.registerAirline(airlineAddress);
+            return (true, 0);
+        }
+
+        votes = flightSuretyData.voteForAirline(msg.sender, airlineAddress);
+        if (SafeMath.div(SafeMath.mul(votes, 100), operationalAirlineCount) >= 50) {
+            flightSuretyData.registerAirline(airlineAddress);
+            return (true, votes);
+        }
+        return (false, votes);
     }
 
+    function fundAirline(address airlineAddress)
+        external
+        payable
+        requireIsOperational
+    {
+        require(flightSuretyData.isAirlineRegistered(airlineAddress), "The Airline to be funded is not registered");
+        require(flightSuretyData.isAirlineFunded(airlineAddress) == false, "Airline is already funded");
+        require(msg.value >= AIRLINE_FUNDING_REQUIREMENT_AMOUNT, "Airline can not be funded, Ether amount is not enough");
+        flightSuretyData.fund.value(msg.value)(airlineAddress, msg.value); // because call payable function, need value to send gas
+    }
 
    /**
     * @dev Register a future flight for insuring.
     *
     */  
-    function registerFlight
-                                (
-                                )
-                                external
-                                pure
+    function registerFlight(string flight, string from, string to, uint256 timestamp) 
+        external
+        requireIsOperational
     {
-
+        flightSuretyData.registerFlight(
+            msg.sender,
+            flight,
+            from,
+            to,
+            timestamp
+        );
     }
     
+    function buyInsurance(address airline,string flight, uint256 timestamp) 
+        external
+        payable
+        requireIsOperational 
+    {
+        require(msg.value <= 1 ether,"User cannot buy insurance above 1 ether");
+        bool isAirlineFunded = flightSuretyData.isAirlineFunded(airline);
+        require(isAirlineFunded, "User cannot buy insurance of the non-operational airline.");
+        flightSuretyData.buy.value(msg.value)(
+            airline,
+            flight,
+            timestamp,
+            msg.sender,
+            msg.value
+        );
+    }
+
+    function withdrawCreditedAmount() external requireIsOperational {
+        flightSuretyData.pay(msg.sender);
+    }
    /**
     * @dev Called after oracle has updated flight status
     *
     */  
-    function processFlightStatus
-                                (
-                                    address airline,
-                                    string memory flight,
-                                    uint256 timestamp,
-                                    uint8 statusCode
-                                )
-                                internal
-                                pure
+    function processFlightStatus(address airline, string flight, uint256 timestamp, uint8 statusCode) 
+        internal 
     {
+        flightSuretyData.processFlightStatus(
+            airline,
+            flight,
+            timestamp,
+            statusCode
+        );
     }
 
 
@@ -328,6 +377,7 @@ contract FlightSuretyApp {
         if (nonce > 250) {
             nonce = 0;  // Can only fetch blockhashes for last 256 blocks so we adapt
         }
+        
 
         return random;
     }
@@ -335,3 +385,17 @@ contract FlightSuretyApp {
 // endregion
 
 }   
+
+contract FlightSuretyData {
+    
+    function registerAirline(address airlineAddress) external;
+    function isAirlineRegistered(address airlineAddress) external view returns (bool);
+    function isAirlineFunded(address airlineAddress) external view returns(bool);
+    function fund(address account, uint256 amount) external payable;
+    function getOperationalAirlineCount() external view returns (uint256);
+    function voteForAirline(address voter, address airlineAddress) external returns (uint256);
+    function processFlightStatus(address airline, string flight, uint256 timestamp, uint8 statusCode) external;
+    function registerFlight(address airline, string flight, string from, string to, uint256 timestamp) external;
+    function buy(address airline, string flight, uint256 timestamp,address passenger, uint256 amount) external payable;
+    function pay(address passenger) external;
+}

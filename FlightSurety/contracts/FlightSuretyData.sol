@@ -11,6 +11,47 @@ contract FlightSuretyData {
 
     address private contractOwner;                                      // Account used to deploy contract
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
+    
+    struct Airline {
+        address airlineAddress;
+        bool isFunded;
+        bool isRegistered;
+        address[] voters;
+    }
+    mapping(address => Airline) private registeredAirlines;
+
+    uint256 registeredAirlineCounter = 0;
+    uint256 totalFunds = 0;
+    address[] airlineAddrs;
+
+     // Flight status codees
+    uint8 private constant STATUS_CODE_UNKNOWN = 0;
+    uint8 private constant STATUS_CODE_ON_TIME = 10;
+    uint8 private constant STATUS_CODE_LATE_AIRLINE = 20;
+    uint8 private constant STATUS_CODE_LATE_WEATHER = 30;
+    uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
+    uint8 private constant STATUS_CODE_LATE_OTHER = 50;
+
+    struct Flight {
+        bool isRegistered;
+        uint8 statusCode;
+        uint256 updatedTimestamp;
+        address airline;
+        string flight;
+        string from;
+        string to;
+    }
+    mapping(bytes32 => Flight) private flights;
+
+     // Insurances
+    struct Insurance {
+        address passenger;
+        uint256 amount; // Passenger insurance payment
+        bool isCredited;
+    }
+    mapping(bytes32 => Insurance[]) insurancesPerFlight;
+    mapping(address => uint256) public pendingPayments;
+
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -98,50 +139,96 @@ contract FlightSuretyData {
     *      Can only be called from FlightSuretyApp contract
     *
     */   
-    function registerAirline
-                            (   
-                            )
-                            external
-                            pure
+    function registerAirline(address airlineAddress)
+        external
+        requireIsOperational
     {
+        
+        registeredAirlines[airlineAddress] = Airline({
+            airlineAddress: airlineAddress,
+            isFunded: false,
+            isRegistered: true,
+            voters: new address[](0)
+        });
+        airlineAddrs.push(airlineAddress);
+
+        registeredAirlineCounter = registeredAirlineCounter.add(1);
     }
 
+    function isAirlineRegistered(address airlineAddress)
+        external
+        view
+        returns (bool)
+    {
+        return registeredAirlines[airlineAddress].isRegistered;
+    }
+
+    function isAirlineFunded(address airlineAddress)
+        external
+        view
+        returns (bool)
+    {
+        return registeredAirlines[airlineAddress].isFunded;
+    }
+
+
+    function voteForAirline(address voter, address airlineAddress)
+        external
+        returns (uint256)
+    {
+        Airline storage airline = registeredAirlines[airlineAddress];
+        if (airline.airlineAddress == address(0)) {
+            registeredAirlines[airlineAddress] = Airline({
+                airlineAddress: airlineAddress,
+                isFunded: false,
+                isRegistered: false,
+                voters: new address[](0)
+            });
+            airline = registeredAirlines[airlineAddress];
+        }
+
+        address[] memory voters = airline.voters;
+
+        bool isVoted = false;
+        for (uint256 i = 0; i < voters.length; i++) {
+            address votedAddr = voters[i];
+            if (votedAddr == airlineAddress) {
+                isVoted = true;
+                break;
+            }
+        }
+        require(isVoted == false, "The voter is voted");
+
+        airline.voters.push(voter);
+    }
 
    /**
     * @dev Buy insurance for a flight
     *
     */   
-    function buy
-                            (                             
-                            )
-                            external
-                            payable
+    function buy(address airline, string flight, uint256 timestamp, address passenger, uint256 amount)
+        external 
+        payable 
     {
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+        require(flights[flightKey].isRegistered, "Flight is not registered");
 
+        insurancesPerFlight[flightKey].push(
+            Insurance({passenger: passenger, amount: amount, isCredited: false})
+        );
     }
-
-    /**
-     *  @dev Credits payouts to insurees
-    */
-    function creditInsurees
-                                (
-                                )
-                                external
-                                pure
-    {
-    }
-    
 
     /**
      *  @dev Transfers eligible payout funds to insuree
      *
     */
-    function pay
-                            (
-                            )
-                            external
-                            pure
+    function pay(address passenger) 
+        external
     {
+        uint256 amount = pendingPayments[passenger];
+        pendingPayments[passenger] = 0;
+
+        passenger.transfer(amount);
     }
 
    /**
@@ -149,37 +236,86 @@ contract FlightSuretyData {
     *      resulting in insurance payouts, the contract should be self-sustaining
     *
     */   
-    function fund
-                            (   
-                            )
-                            public
-                            payable
+    function fund(address airlineAddress, uint256 amount)
+        payable
+        external
+        requireIsOperational
     {
+        registeredAirlines[airlineAddress].isFunded = true;
+        totalFunds = totalFunds.add(amount); 
     }
 
-    function getFlightKey
-                        (
-                            address airline,
-                            string memory flight,
-                            uint256 timestamp
-                        )
-                        pure
-                        internal
-                        returns(bytes32) 
+    function getOperationalAirlineCount()
+        external
+        view
+        returns (uint256)
+    {
+        uint256 count = 0;
+        for (uint256 i = 0; i < airlineAddrs.length; i++) {
+            address airlineAddr = airlineAddrs[i];
+            if (registeredAirlines[airlineAddr].isRegistered) {
+                count = count.add(1);
+            }
+        }
+        return count;
+    }
+
+    function getFlightKey(address airline, string memory flight, uint256 timestamp)
+        pure
+        internal
+        returns(bytes32) 
     {
         return keccak256(abi.encodePacked(airline, flight, timestamp));
     }
 
-    /**
-    * @dev Fallback function for funding smart contract.
-    *
-    */
-    function() 
-                            external 
-                            payable 
+
+    function processFlightStatus(address airline, string flight, uint256 timestamp, uint8 statusCode)
+        external 
     {
-        fund();
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+        if (flights[flightKey].statusCode == STATUS_CODE_UNKNOWN) {
+            flights[flightKey].statusCode = statusCode;
+            if (statusCode == STATUS_CODE_LATE_AIRLINE) {
+                creditInsurees(airline, flight, timestamp);
+            }
+        }
     }
+
+    function creditInsurees(address airline, string flight, uint256 timestamp)
+        internal 
+    {
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+
+        for (uint256 i = 0; i < insurancesPerFlight[flightKey].length; i++) {
+            Insurance memory insurance = insurancesPerFlight[flightKey][i];
+
+            if (!insurance.isCredited) {
+                insurance.isCredited = true;
+                uint256 amount = insurance.amount.mul(15).div(10);
+                pendingPayments[insurance.passenger] += amount;
+            }
+        }
+    }
+
+    function getCreditedAmount(address passenger)
+        external
+        view
+        returns (uint256)
+    {
+        return pendingPayments[passenger];
+    }
+
+
+    // /**
+    // * @dev Fallback function for funding smart contract.
+    // *
+    // */
+    // function() 
+    //                         external 
+    //                         payable 
+    // {
+    //     fund();
+    // }
 
 
 }
