@@ -16,6 +16,7 @@
 * truffle-hdwallet-provider": "^1.0.17"
 
 ## UML Diagram
+* All diagrams reference are from [Reference](https://github.com/axelgalicia/blockchain-supply-chain)
 
 ### Activity
 ![ActivityDiagram](images/activity.drawio.png)
@@ -24,11 +25,9 @@
 ![SequenceDiagram](images/sequence.drawio.png)
 
 ### State 
-* [Reference](https://github.com/axelgalicia/blockchain-supply-chain)
 ![StateDiagram](images/state_diagram.png)
 
 ### Data Modeling 
-* [Reference](https://github.com/axelgalicia/blockchain-supply-chain)
 ![DataModelingDiagram](images/data_modeling.jpeg)
 
 # Test Result
