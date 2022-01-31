@@ -1,3 +1,42 @@
+# Project Requirements
+
+## A project write-up
+
+### The contract address
+* [Link](https://rinkeby.etherscan.io/address/0x127A39636C7BBb588B9f69B73ecD22b8695d92e1)
+### Program version numbers
+
+* Solidity 0.4.24
+* Truffle 4.1.14
+* node 12.13.0
+* npm 6.12.0
+
+### Library used
+* ganache-cli": "^6.12.2"
+* truffle-hdwallet-provider": "^1.0.17"
+
+## UML Diagram
+
+### Activity
+![ActivityDiagram](images/activity.drawio.png)
+
+### Sequence
+![SequenceDiagram](images/sequence.drawio.png)
+
+### State 
+* [Reference](https://github.com/axelgalicia/blockchain-supply-chain)
+![StateDiagram](images/state_diagram.png)
+
+### Data Modeling 
+* [Reference](https://github.com/axelgalicia/blockchain-supply-chain)
+![DataModelingDiagram](images/data_modeling.jpeg)
+
+# Test Result
+![TestResult](images/testcase_result.png)
+
+
+---------- Below are original project example README.md -----------
+
 # Supply chain & data auditing
 
 This repository containts an Ethereum DApp that demonstrates a Supply Chain flow between a Seller and Buyer. The user story is similar to any commonly used supply chain process. A Seller can add items to the inventory system stored in the blockchain. A Buyer can purchase such items from the inventory system. Additionally a Seller can mark an item as Shipped, and similarly a Buyer can mark an item as Received.
