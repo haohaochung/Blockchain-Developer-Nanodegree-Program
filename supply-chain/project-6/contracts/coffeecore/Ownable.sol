@@ -8,9 +8,16 @@ contract Ownable {
     event TransferOwnership(address indexed oldOwner, address indexed newOwner);
 
     /// Assign the contract to an owner
-    constructor () internal {
+    constructor() internal {
         origOwner = msg.sender;
         emit TransferOwnership(address(0), origOwner);
+    }
+
+    // Define a function 'kill' if required
+    function kill() public {
+        if (msg.sender == origOwner) {
+        selfdestruct(origOwner);
+        }
     }
 
     /// Look up the address of the owner
@@ -20,7 +27,7 @@ contract Ownable {
 
     /// Define a function modifier 'onlyOwner'
     modifier onlyOwner() {
-        require(isOwner());
+        require(isOwner(), "Only the owner can perform this operation");
         _;
     }
 
@@ -42,7 +49,7 @@ contract Ownable {
 
     /// Define an internal function to transfer ownership
     function _transferOwnership(address newOwner) internal {
-        require(newOwner != address(0));
+        require(newOwner != address(0), "The new Owner cannot be address 0");
         emit TransferOwnership(origOwner, newOwner);
         origOwner = newOwner;
     }

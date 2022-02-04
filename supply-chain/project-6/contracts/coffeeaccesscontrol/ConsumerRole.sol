@@ -1,16 +1,16 @@
-pragma solidity ^0.4.24;
+pragma solidity 0.4.24;
 
 // Import the library 'Roles'
 import "./Roles.sol";
 
 // Define a contract 'ConsumerRole' to manage this role - add, remove, check
 contract ConsumerRole {
+
   using Roles for Roles.Role;
 
   // Define 2 events, one for Adding, and other for Removing
   event ConsumerAdded(address indexed account);
   event ConsumerRemoved(address indexed account);
-
   // Define a struct 'consumers' by inheriting from 'Roles' library, struct Role
   Roles.Role private consumers;
 
@@ -21,7 +21,7 @@ contract ConsumerRole {
 
   // Define a modifier that checks to see if msg.sender has the appropriate role
   modifier onlyConsumer() {
-    require(isConsumer(msg.sender));
+    require(consumers.has(msg.sender), "This account has no Consumer Role");
     _;
   }
 

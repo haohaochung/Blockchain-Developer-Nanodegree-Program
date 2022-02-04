@@ -2,8 +2,41 @@
 
 ## A project write-up
 
-### The contract address
-* [Link](https://rinkeby.etherscan.io/address/0x127A39636C7BBb588B9f69B73ecD22b8695d92e1)
+### Contract
+
+* truffle migrate --network rinkeby
+```bash
+Using network 'rinkeby'.
+
+Running migration: 1_initial_migration.js
+  Deploying Migrations...
+  ... 0x0c7e73a57950359213f673e1923c5d9c423ae9325bb61e4c4e144ec210d6b6b7
+  Migrations: 0x853d106018adcaf04aa43ef81e7ac0ad783c3bb2
+Saving successful migration to network...
+  ... 0x81f9379404a40324da9a9be7abefecd49793d68af4233b07ce3842a2212266e2
+Saving artifacts...
+Running migration: 2_deploy_contracts.js
+  Deploying FarmerRole...
+  ... 0x68101d3398f71f3dbdf6b698c853aa7cf2e9c079421c53affb94e06c1331492a
+  FarmerRole: 0x2e3f882b8d9a78d2cb9ddc92d1ca8340330f3c71
+  Deploying DistributorRole...
+  ... 0x7341d07e2c01909b230c4130dcac284db5ada1b961344b93bf52a783448f67ee
+  DistributorRole: 0x5c971892dfe96a09856bc10efbb864241949594a
+  Deploying RetailerRole...
+  ... 0xd5e609bff4b4d59d55cac8686d876bb9841b458b207a0c99bf82b52c16641538
+  RetailerRole: 0x462254f32efbd3bfaf9fe2dbda6c71f1be0e4ca8
+  Deploying ConsumerRole...
+  ... 0x572158b296c83fa771b7f3f0367f0f2670098d9a3f11f3e51dae05226e4ec86c
+  ConsumerRole: 0xda66615c16f71606715e1397e565690aafd37540
+  Deploying SupplyChain...
+  ... 0x298b553e1f933e584c6b567f7001030027d2606f041378471240c0ec7aa2643e
+  SupplyChain: 0x1280e15e4535823253b4519a01d1cd63060ce488
+Saving successful migration to network...
+  ... 0x55721733733496d060737c798e1adc72328380e406c0d45d84a0c04bc328f3d9
+Saving artifacts...
+```
+* [Contract Address](https://rinkeby.etherscan.io/address/0x1280e15e4535823253b4519a01d1cd63060ce488)
+* [Add Farmer Transaction](https://rinkeby.etherscan.io/tx/0xfd6699a1ea76667aae0d3244e5164f1b0aca627d975f720f15790edaf229f136)
 ### Program version numbers
 
 * Solidity 0.4.24

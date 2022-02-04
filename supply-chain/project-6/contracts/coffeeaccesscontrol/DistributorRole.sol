@@ -5,6 +5,7 @@ import "./Roles.sol";
 
 // Define a contract 'DistributorRole' to manage this role - add, remove, check
 contract DistributorRole {
+
   using Roles for Roles.Role;
 
   // Define 2 events, one for Adding, and other for Removing
@@ -16,23 +17,24 @@ contract DistributorRole {
 
   // In the constructor make the address that deploys this contract the 1st distributor
   constructor() public {
+    // The first distributor will be the person deploying this contract
     _addDistributor(msg.sender);
   }
 
   // Define a modifier that checks to see if msg.sender has the appropriate role
   modifier onlyDistributor() {
-    isDistributor(msg.sender);
+      require(distributors.has(msg.sender), "This account has no Distributor Role");
     _;
   }
 
   // Define a function 'isDistributor' to check this role
   function isDistributor(address account) public view returns (bool) {
-    distributors.has(account);
+       return distributors.has(account);
   }
 
   // Define a function 'addDistributor' that adds this role
   function addDistributor(address account) public onlyDistributor {
-    _addDistributor(account);
+      _addDistributor(account);
   }
 
   // Define a function 'renounceDistributor' to renounce this role
