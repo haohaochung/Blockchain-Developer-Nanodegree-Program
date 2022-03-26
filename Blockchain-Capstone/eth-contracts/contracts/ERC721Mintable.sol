@@ -563,8 +563,8 @@ contract ERC721MintableComplete is Pausable, ERC721Metadata {
     constructor()
         public
         ERC721Metadata(
-            "Colin Udacity Token",
-            "CUT",
+            "Haohao Udacity Token",
+            "HAO",
             "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/"
         )
     {}
