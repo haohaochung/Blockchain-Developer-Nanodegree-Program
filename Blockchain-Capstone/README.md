@@ -1,5 +1,5 @@
-# Project Deliverables
-# Project Version Info
+# Project Basic Info
+## Version
 * Truffle v5.0.6 (core: 5.0.6)
 * Solidity v0.5.2 (solc-js)
 * Node v12 (Use v14 at first, however it can not migrate to rinkeby, so I downgrade to v12)
@@ -12,7 +12,7 @@
     truffle test
 ```
 
-## How to deploy to Rinkeby newwork
+## How to deploy to Rinkeby network
 ```bash
     truffle migrate --network rinkeby
 ```
@@ -33,9 +33,9 @@
  4. [SolnSquareVerifier](https://rinkeby.etherscan.io/address/0xdf88c136c323d884edc1d47055deaeba59b2c64b)
 
 ### Contract ABI's
-1. ERC721MintableComplete: eth-contracts/build/contracts/ERC721MintableComplete.json
-2. SquareVerifier: eth-contracts/build/contracts/SquareVerifier.json
-3. SolnSquareVerifier: eth-contracts/build/contracts/SolnSquareVerifier.json
+1. ERC721MintableComplete: [eth-contracts/build/contracts/ERC721MintableComplete.json](eth-contracts/build/contracts/ERC721MintableComplete.json])
+2. SquareVerifier: [eth-contracts/build/contracts/SquareVerifier.json](eth-contracts/build/contracts/SquareVerifier.json)
+3. SolnSquareVerifier: [eth-contracts/build/contracts/SolnSquareVerifier.json](eth-contracts/build/contracts/SolnSquareVerifier.json)
 
 ### OpenSea MarketPlace Storefront link
 * Storefront: https://testnets.opensea.io/collection/haohao-udacity-token
