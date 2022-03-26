@@ -6,7 +6,7 @@ contract('TestERC721Mintable', (accounts) => {
     const account_two = accounts[1];
     let contract;
     console.log(account_one)
-    describe('match erc721 spec', function () {
+    describe('match erc721 spec', () => {
         beforeEach(async () => { 
             contract = await ERC721MintableComplete.new({from: account_one});
             // TODO: mint multiple tokens

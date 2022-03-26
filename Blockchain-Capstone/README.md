@@ -16,9 +16,9 @@
 # Project requirements
 ## ERC721
 * Completes the boilerplate ERC721 Mintable Contract in ERC721Mintable.sol - V
-* Writes and passes the test cases in TestERC721Mintable.js - 
-* Writes and passes the test cases in 'TestSquareVerifier.js' - 
-* Writes and passes the test cases in TestSolnSquareVerifier.js - 
+* Writes and passes the test cases in TestERC721Mintable.js - V
+* Writes and passes the test cases in 'TestSquareVerifier.js' - V
+* Writes and passes the test cases in TestSolnSquareVerifier.js - V  
 
 ## Zokrates
 * Completes the Zokrates proof in square.code by adding the variable names in square.code - V
