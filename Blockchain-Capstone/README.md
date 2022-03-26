@@ -1,5 +1,16 @@
 # Project Deliverables
+# Project Version Info
+* Truffle v5.0.6 (core: 5.0.6)
+* Solidity v0.5.2 (solc-js)
+* Node v14.17.1
+* Web3.js v1.5.3
+
 ## How to test the code
+```bash
+    npm install
+    cd eth-contracts
+    truffle test
+```
 ## Contract Addresses, Contract Abi's, OpenSea MarketPlace Storefront link's.
 
 # Project requirements
@@ -29,12 +40,6 @@
 * Deploys ERC721 contracts with Zokrates integration.
 
 
-
-# Project Version Info
-* Truffle v5.4.31 (core: 5.4.31)
-* Solidity v0.5.16 (solc-js)
-* Node v16.10.0
-* Web3.js v1.5.3
 
 # Udacity Blockchain Capstone
 
