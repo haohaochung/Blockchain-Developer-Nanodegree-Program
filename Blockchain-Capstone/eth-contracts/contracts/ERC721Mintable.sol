@@ -19,7 +19,7 @@ contract Ownable {
 
     //  3) create an 'onlyOwner' modifier that throws if called by any account other than the owner.
     modifier onlyOwner() {
-        require(msg.sender == _owner, "permission deny");
+        require(msg.sender == _owner, "Hey permission deny");
         _;
     }
 
@@ -32,6 +32,9 @@ contract Ownable {
         _owner = newOwner;
     }
     
+    function owner() public view returns (address) {
+        return _owner;
+    }
     //  5) create an event that emits anytime ownerShip is transfered (including in the constructor)
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
@@ -542,19 +545,34 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
 //      -returns a true boolean upon completion of the function
 //      -calls the superclass mint and setTokenURI functions
 
-contract CustomERC721Token is ERC721Metadata {
+// contract CustomERC721Token is ERC721Metadata {
 
-    constructor(string memory name, string memory symbol) 
-        ERC721Metadata(name, symbol, "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/")
+//     constructor(string memory name, string memory symbol) 
+//         ERC721Metadata(name, symbol, "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/")
+//         public
+//     {
+//     }
+
+//     function mint(address to, uint256 tokenId) public onlyOwner whenNotPaused returns (bool)  {
+//         super._mint(to, tokenId);
+//         super.setTokenURI(tokenId);
+//         return true;
+//     }
+// }
+contract ERC721MintableComplete is Pausable, ERC721Metadata {
+    constructor()
         public
-    {
-    }
+        ERC721Metadata(
+            "Colin Udacity Token",
+            "CUT",
+            "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/"
+        )
+    {}
 
-    function mint(address to, uint256 tokenId) public onlyOwner whenNotPaused returns (bool)  {
-        super._mint(to, tokenId);
-        super.setTokenURI(tokenId);
+    function mint(address to, uint256 tokenId) public onlyOwner returns (bool) {
+        _mint(to, tokenId);
+        setTokenURI(tokenId);
         return true;
     }
 }
-
 
